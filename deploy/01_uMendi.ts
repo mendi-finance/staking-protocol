@@ -1,8 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
-const underlying: string = "";
-const rewardTokens: string[] = [];
+const underlying: string = "0x43E8809ea748EFf3204ee01F08872F063e44065f";
+const rewardTokens: string[] = ["0x176211869ca2b568f2a7d4ee941e073a821ee1ff"];
 
 const func: DeployFunction = async ({
     getNamedAccounts,
@@ -43,9 +43,9 @@ const func: DeployFunction = async ({
                     methodName: "initialize",
                     args: [
                         rewardHolderDeploy.address,
-                        underlying,
                         "Staked Mendi",
                         "uMendi",
+                        underlying,
                     ],
                 },
             },
@@ -57,7 +57,7 @@ const func: DeployFunction = async ({
     );
 
     for (const rewardToken of rewardTokens) {
-        await (await staking.addToken(rewardToken)).wait(1);
+        await (await staking._whitelistToken(rewardToken)).wait(1);
     }
 };
 

@@ -95,7 +95,9 @@ abstract contract Distributor is OwnableUpgradeable {
         address token
     ) public virtual nonReentrant returns (uint256 _shareIndex) {
         if (totalShares == 0) return shareIndex[token];
-        uint256 amount = IClaimable(claimable).claim(token);
+
+        uint256 amount = claimFromClaimableInternal(token);
+
         if (amount == 0) return shareIndex[token];
 
         _shareIndex = amount.mul(MANTISSA2).div(totalShares).add(
@@ -103,6 +105,21 @@ abstract contract Distributor is OwnableUpgradeable {
         );
         shareIndex[token] = _shareIndex;
         emit UpdateShareIndex(token, _shareIndex);
+    }
+
+    /**
+     * claim token from claimable
+     * calculate after-before amount in any case if there is a fee etc.
+     * @param token Reward token to be claimed
+     */
+    function claimFromClaimableInternal(
+        address token
+    ) internal returns (uint256 claimedAmount) {
+        uint256 beforeAmount = token.balanceOf(address(this));
+        IClaimable(claimable).claim(token);
+        uint256 afterAmount = token.balanceOf(address(this));
+
+        claimedAmount = afterAmount - beforeAmount;
     }
 
     function updateCredit(

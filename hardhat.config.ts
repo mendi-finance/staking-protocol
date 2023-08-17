@@ -49,6 +49,17 @@ const config: HardhatUserConfig = {
                 },
             },
         },
+        linea_goerli: {
+            chainId: 59140,
+            url: process.env.LINEA_GOERLI_RPC_URL,
+            accounts: [process.env.LINEA_GOERLI_DEPLOYER!],
+            verify: {
+                etherscan: {
+                    apiUrl: process.env.LINEA_GOERLI_EXPLORER_API_URL,
+                    apiKey: process.env.LINEA_GOERLI_EXPLORER_API_KEY,
+                },
+            },
+        },
     },
     namedAccounts: {
         deployer: {
