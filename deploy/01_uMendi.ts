@@ -12,11 +12,6 @@ const func: DeployFunction = async ({
 }: HardhatRuntimeEnvironment) => {
     const { deployer } = await getNamedAccounts();
 
-    if (await ethers.getContractOrNull("uMendi")) {
-        console.log("uMendi already deployed");
-        return;
-    }
-
     const rewardHolderDeploy = await deploy("uMendiRewards", {
         from: deployer,
         log: true,
@@ -31,6 +26,10 @@ const func: DeployFunction = async ({
             },
         },
     });
+    const rewardHolder = await ethers.getContractAt(
+        "RewardHolder",
+        rewardHolderDeploy.address
+    );
 
     const stakeDeploy = await deploy("uMendi", {
         from: deployer,
@@ -56,8 +55,17 @@ const func: DeployFunction = async ({
         stakeDeploy.address
     );
 
+    // set reward holder recipient
+    const curRecipient = await rewardHolder.recipient();
+    if (curRecipient?.toLowerCase() !== staking.address.toLowerCase()) {
+        await (await rewardHolder._setRecipient(staking.address)).wait(1);
+    }
+
+    // add reward tokens
     for (const rewardToken of rewardTokens) {
-        await (await staking._whitelistToken(rewardToken)).wait(1);
+        if (!(await staking.tokenExists(rewardToken))) {
+            await (await staking._whitelistToken(rewardToken)).wait(1);
+        }
     }
 };
 

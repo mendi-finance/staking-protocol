@@ -53,6 +53,15 @@ abstract contract Distributor is OwnableUpgradeable {
     /// @notice Flag to check if reward token added before
     mapping(address => bool) public tokenExists;
 
+    // Sets in initialize.
+    bool internal _notEntered;
+    modifier nonReentrant() {
+        require(_notEntered, "Distributor: REENTERED");
+        _notEntered = false;
+        _;
+        _notEntered = true;
+    }
+
     function __Distributor_init(address claimable_) internal onlyInitializing {
         __Ownable_init();
         __Distributor_init_unchained(claimable_);
@@ -62,6 +71,7 @@ abstract contract Distributor is OwnableUpgradeable {
         address claimable_
     ) internal onlyInitializing {
         claimable = claimable_;
+        _notEntered = true;
     }
 
     /* Admin functions */
@@ -150,7 +160,7 @@ abstract contract Distributor is OwnableUpgradeable {
 
     function claimAll() external returns (uint256[] memory amounts) {
         amounts = new uint256[](tokens.length);
-        for (uint256 i = 1; i < tokens.length; i++) {
+        for (uint256 i = 0; i < tokens.length; i++) {
             amounts[i] = claimInternal(tokens[i], msg.sender);
         }
     }
@@ -189,14 +199,5 @@ abstract contract Distributor is OwnableUpgradeable {
     /** Getters */
     function getTokens() public view returns (address[] memory) {
         return tokens;
-    }
-
-    // Prevents a contract from calling itself, directly or indirectly.
-    bool internal _notEntered = true;
-    modifier nonReentrant() {
-        require(_notEntered, "Distributor: REENTERED");
-        _notEntered = false;
-        _;
-        _notEntered = true;
     }
 }
