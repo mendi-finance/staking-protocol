@@ -175,10 +175,10 @@ abstract contract Distributor is OwnableUpgradeable {
         if (amount > 0) {
             recipients[token][account].credit = 0;
 
-            IERC20(token).transfer(account, amount);
-            //token.safeTransfer(account, amount);
-
-            emit Claim(token, account, amount);
+            if (amount > 0) {
+                IERC20(token).transfer(account, amount);
+                emit Claim(token, account, amount);
+            }
         }
     }
 

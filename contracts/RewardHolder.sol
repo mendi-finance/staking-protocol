@@ -37,8 +37,9 @@ contract RewardHolder is IClaimable, OwnableUpgradeable {
         );
 
         amount = token.balanceOf(address(this));
-        token.safeTransfer(_msgSender(), amount);
-
-        emit Claim(token, _msgSender(), amount);
+        if (amount > 0) {
+            token.safeTransfer(_msgSender(), amount);
+            emit Claim(token, _msgSender(), amount);
+        }
     }
 }
