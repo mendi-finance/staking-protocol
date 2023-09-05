@@ -183,7 +183,7 @@ abstract contract Distributor is OwnableUpgradeable {
     }
 
     function _editRecipientInternal(address account, uint256 shares_) internal {
-        for (uint256 i = 1; i < tokens.length; i++) {
+        for (uint256 i = 0; i < tokens.length; i++) {
             updateCredit(tokens[i], account);
         }
 

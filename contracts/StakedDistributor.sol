@@ -15,7 +15,7 @@ contract StakedDistributor is Distributor, ERC20Upgradeable {
 
     event Withdraw(address indexed user, uint256 amount);
 
-    uint256 public withdrawalPendingTime = 7 * 1 days;
+    uint256 public withdrawalPendingTime;
     mapping(address => Withdrawal) public withdrawal;
 
     address public underlying;
@@ -30,6 +30,7 @@ contract StakedDistributor is Distributor, ERC20Upgradeable {
         __ERC20_init(name, symbol);
 
         underlying = underlying_;
+        withdrawalPendingTime = 7 * 1 days;
     }
 
     /* Admin functions */
