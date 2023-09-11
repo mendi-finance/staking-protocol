@@ -137,7 +137,7 @@ async function deployTokensFixture() {
     };
 }
 
-describe.only("Staked Distributor Admin", function () {
+describe("Staked Distributor Admin", function () {
     it("Should be able to add a new reward token", async function () {
         const { admin, stakedDistributor, reward0 } = await loadFixture(
             deployTokensFixture
@@ -246,9 +246,8 @@ describe("Staked Distributor", function () {
     });
 
     it("Should withdraw burned tokens", async function () {
-        const { stakedDistributor, mendi, staker0, staker1 } = await loadFixture(
-            deployTokensFixture
-        );
+        const { stakedDistributor, mendi, staker0, staker1 } =
+            await loadFixture(deployTokensFixture);
 
         // Burn staked tokens and withdraw Mendi: Staker0 in Stage 0
         const staker0Mendi = await mendi.balanceOf(staker0.address);

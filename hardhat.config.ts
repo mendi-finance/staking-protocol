@@ -34,6 +34,7 @@ const config: HardhatUserConfig = {
                 url: process.env[
                     `${process.env.FORKING_NETWORK?.toUpperCase()}_RPC_URL`
                 ]!,
+                blockNumber: 361301,
             },
             autoImpersonate: true,
             gasPrice: 1000000000,

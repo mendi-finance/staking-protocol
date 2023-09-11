@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import { SignerWithAddress } from "hardhat-deploy-ethers/signers";
 
 const sumArray = (array: BigNumber[][]) => {
@@ -49,4 +49,25 @@ const getTokenContract = async (opts: {
     }
 };
 
-export { sumArray, getTokenContract };
+const getImpersonatedSigner = async (account: string) => {
+    await network.provider.request({
+        method: "hardhat_impersonateAccount",
+        params: [account],
+    });
+
+    const newBalanceHex = ethers.utils
+        .parseEther("100")
+        .toHexString()
+        .replace("0x0", "0x");
+    await network.provider.request({
+        method: "hardhat_setBalance",
+        params: [account, newBalanceHex],
+    });
+    return ethers.getSigner(account);
+};
+
+function anyValue() {
+    return true;
+}
+
+export { sumArray, getTokenContract, getImpersonatedSigner, anyValue };
