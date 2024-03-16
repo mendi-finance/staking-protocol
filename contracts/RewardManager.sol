@@ -11,14 +11,10 @@ import "./StakedDistributor.sol";
 contract RewardManager is OwnableUpgradeable {
     using SafeToken for address;
 
-    uint256 private constant teamShare = 0.2e18;
-
     StakedDistributor public immutable sMendi =
         StakedDistributor(0x150b1e51738CdF0cCfe472594C62d7D6074921CA);
     StakedDistributor public immutable uMendi =
         StakedDistributor(0xcf8deDCdC62317beAEdfBee3C77C08425F284486);
-    StakedDistributor public immutable tMendi =
-        StakedDistributor(0xE17D41790ee5b794C22ce7276905490F60ACF662);
 
     /* Tokens */
     address public immutable mendi = 0x43E8809ea748EFf3204ee01F08872F063e44065f;
@@ -82,13 +78,6 @@ contract RewardManager is OwnableUpgradeable {
         uint256 amount = token.myBalance();
         if (amount == 0) return;
 
-        // add to tMendi
-        uint256 tMendiAmount = (amount * teamShare) / 1e18;
-        address tRewardHolder = tMendi.claimable();
-        token.safeTransfer(tRewardHolder, tMendiAmount);
-
-        amount = token.myBalance();
-
         // add to uMendi
         uint256 uMendiAmount = (amount * uMendiSupply) / totalSupply;
         address uRewardHolder = uMendi.claimable();
@@ -106,13 +95,6 @@ contract RewardManager is OwnableUpgradeable {
     ) internal {
         uint256 amount = usdc.myBalance();
         if (amount == 0) return;
-
-        // add to tMendi
-        uint256 tMendiAmount = (amount * teamShare) / 1e18;
-        address tRewardHolder = tMendi.claimable();
-        usdc.safeTransfer(tRewardHolder, tMendiAmount);
-
-        amount = usdc.myBalance();
 
         // add to uMendi
         uint256 uMendiUSDCAmount = (amount * uMendiSupply) / totalSupply;

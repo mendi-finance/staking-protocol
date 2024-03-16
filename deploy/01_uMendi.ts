@@ -10,6 +10,7 @@ const func: DeployFunction = async ({
     ethers,
     network,
 }: HardhatRuntimeEnvironment) => {
+    return false;
     const { deployer } = await getNamedAccounts();
 
     const rewardHolderDeploy = await deploy("uMendiRewards", {

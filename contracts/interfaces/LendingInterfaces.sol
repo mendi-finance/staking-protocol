@@ -2,6 +2,8 @@
 pragma solidity ^0.8.10;
 
 interface IMarket {
+    function reserveGuardian() external view returns (address);
+
     function underlying() external view returns (address);
 
     function totalReserves() external view returns (uint256);
@@ -14,8 +16,6 @@ interface IMarket {
 
     /* For testing */
     function admin() external view returns (address);
-
-    function reserveGuardian() external view returns (address);
 
     function _setReserveGuardian(
         address newReserveGuardian

@@ -55,9 +55,11 @@ contract ReserveManager is AccessControlUpgradeable {
         reduceReserveInternal(usdcMarket, usdcAmount);
 
         for (uint256 i = 0; i < markets.length; i++) {
-            reduceReserveInternal(markets[i], amounts[i]);
-            address underlying = markets[i].underlying();
-            swapToBaseInternal(underlying, amounts[i], swapQuoteData[i]);
+            if (markets[i].reserveGuardian() == address(this)) {
+                reduceReserveInternal(markets[i], amounts[i]);
+                address underlying = markets[i].underlying();
+                swapToBaseInternal(underlying, amounts[i], swapQuoteData[i]);
+            }
         }
 
         uint256 distAmount = usdc.myBalance();
