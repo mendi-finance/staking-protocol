@@ -5,7 +5,7 @@ import { SignerWithAddress } from "hardhat-deploy-ethers/signers";
 import fetch from "node-fetch";
 import { managerFixture } from "./_fixtures";
 
-describe("ReserveManager", () => {
+describe("ReserveManagerV2", () => {
     let deployer: SignerWithAddress;
     let rewardManager: Contract;
     let reserveManager: Contract;

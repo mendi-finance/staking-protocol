@@ -7,16 +7,16 @@ const func: DeployFunction = async ({
     ethers,
     network,
 }: HardhatRuntimeEnvironment) => {
-    return false;
     const { deployer } = await getNamedAccounts();
 
     const reserveManagerDeploy = await deploy("ReserveManager", {
         from: deployer,
         log: true,
-        contract: "contracts/ReserveManager.sol:ReserveManager",
+        contract: "contracts/ReserveManagerV2.sol:ReserveManagerV2",
         args: [],
         proxy: {
             proxyContract: "OpenZeppelinTransparentProxy",
+            owner: "0xe3CDa0A0896b70F0eBC6A1848096529AA7AEe9eE",
             execute: {
                 init: {
                     methodName: "initialize",
