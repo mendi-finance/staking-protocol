@@ -11,7 +11,7 @@ export type ManagerFixtureOutput = {
     uMendi: Contract;
     mendi: Contract;
     usdc: Contract;
-    lvc: Contract;
+    olynx: Contract;
 };
 const managerFixture = deployments.createFixture<ManagerFixtureOutput, any>(
     async ({ deployments, companionNetworks }, options) => {
@@ -44,8 +44,8 @@ const managerFixture = deployments.createFixture<ManagerFixtureOutput, any>(
         const usdcAddress = await rewardManager.usdc();
         const usdc = await ethers.getContractAt("IERC20", usdcAddress);
 
-        const lvcAddress = await rewardManager.lvc();
-        const lvc = await ethers.getContractAt("IERC20", lvcAddress);
+        const olynxAddress = await rewardManager.olynx();
+        const olynx = await ethers.getContractAt("IERC20", olynxAddress);
 
         // impersonate whale and transfer tokens to owner
         const usdcWhaleAddress = "0xfbedc4ebeb2951ff96a636c934fce35117847c9d";
@@ -63,9 +63,12 @@ const managerFixture = deployments.createFixture<ManagerFixtureOutput, any>(
                     owner.address,
                     await usdc.balanceOf(usdcWhaleAddress)
                 ),
-            lvc
+            olynx
                 .connect(varaWhale)
-                .transfer(owner.address, await lvc.balanceOf(lvcWhaleAddress)),
+                .transfer(
+                    owner.address,
+                    await olynx.balanceOf(lvcWhaleAddress)
+                ),
         ]);
 
         // Reserve Manager
@@ -101,7 +104,7 @@ const managerFixture = deployments.createFixture<ManagerFixtureOutput, any>(
             uMendi,
             mendi,
             usdc,
-            lvc,
+            olynx,
         };
     }
 );

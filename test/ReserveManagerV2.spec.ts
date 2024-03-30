@@ -5,7 +5,7 @@ import { SignerWithAddress } from "hardhat-deploy-ethers/signers";
 import fetch from "node-fetch";
 import { managerFixture } from "./_fixtures";
 
-describe("ReserveManagerV2", () => {
+describe.only("ReserveManagerV2", () => {
     let deployer: SignerWithAddress;
     let rewardManager: Contract;
     let reserveManager: Contract;
@@ -30,8 +30,8 @@ describe("ReserveManagerV2", () => {
         expect(reserveManager.address).to.properAddress;
     });
 
-    it("Should distribute reserves", async () => {
-        const usdt = await reserveManager.usdc();
+    it.only("Should distribute reserves", async () => {
+        const usdc = await reserveManager.usdc();
 
         const marketAddresses: string[] = await comptroller.getAllMarkets();
         const markets = await Promise.all(
@@ -39,25 +39,21 @@ describe("ReserveManagerV2", () => {
         );
         const marketInfo = await Promise.all(
             markets.map(async m => {
-                console.log("market", m.address);
                 const underlyingAddress = await m.underlying();
                 const underlying = await ethers.getContractAt(
                     "ERC20",
                     underlyingAddress
                 );
-                console.log("underlying", underlying.address);
                 const underlyingDecimals = await underlying.decimals();
                 const reserve = await m.totalReserves();
                 const cash = await m.getCash();
                 const amount = reserve.gt(cash) ? cash : reserve;
-                const data = (
-                    await fetchSwapDataV3(
-                        underlying.address,
-                        underlyingDecimals,
-                        amount,
-                        reserveManager.address
-                    )
-                ).data;
+                const data = await fetchSwapDataV3(
+                    underlying.address,
+                    underlyingDecimals,
+                    amount,
+                    reserveManager.address
+                );
 
                 return {
                     market: m,
@@ -70,24 +66,29 @@ describe("ReserveManagerV2", () => {
                 };
             })
         );
-        const usdtMarketInfo = marketInfo.find(
-            m => m.underlying.address.toLowerCase() === usdt.toLowerCase()
+        const usdcMarketInfo = marketInfo.find(
+            m => m.underlying.address.toLowerCase() === usdc.toLowerCase()
         );
-        const otherMarketInfo = marketInfo.filter(m => m != usdtMarketInfo);
+        const otherMarketInfo = marketInfo.filter(
+            m => m != usdcMarketInfo && m.amount > 0
+        );
+
+        console.log(otherMarketInfo.map(om => om.market.address));
+        console.log(otherMarketInfo.map(om => om.amount));
 
         await expect(
             reserveManager.distributeReserves(
-                usdtMarketInfo?.market.address,
-                usdtMarketInfo?.amount,
+                usdcMarketInfo?.market.address,
+                usdcMarketInfo?.amount,
                 otherMarketInfo.map(om => om.market.address),
                 otherMarketInfo.map(om => om.amount),
-                otherMarketInfo.map(om => om.data.data)
+                otherMarketInfo.map(om => om.data)
             )
         ).not.reverted;
     });
 
-    it("Should distribute vara", async () => {
-        await expect(reserveManager.distributeLVC()).not.reverted;
+    it("Should distribute olynx", async () => {
+        await expect(reserveManager.distributeOLYNX()).not.reverted;
     });
 });
 
@@ -97,26 +98,38 @@ const fetchSwapDataV3 = async (
     amount: BigNumber,
     account: string
 ) => {
-    const url = "https://open-api.openocean.finance/v3/linea/swap_quote";
-    const queryParams = new URLSearchParams();
-    queryParams.append("chain", "linea");
-    queryParams.append("inTokenAddress", underlying);
-    queryParams.append(
-        "outTokenAddress",
+    // get routes
+    const routeUrl = "https://aggregator-api.kyberswap.com/linea/api/v1/routes";
+    const routeParams = new URLSearchParams();
+    routeParams.append("tokenIn", underlying);
+    routeParams.append(
+        "tokenOut",
         "0x176211869cA2b568f2A7D4EE941E073a821EE1ff"
     );
-    queryParams.append(
-        "amount",
-        ethers.utils.formatUnits(amount, underlyingDecimals)
-    );
-    queryParams.append("gasPrice", "1");
-    queryParams.append("slippage", "1");
-    queryParams.append("account", account);
+    routeParams.append("amountIn", amount.toString());
 
-    console.log(`${url}?${queryParams}`);
-    const response = await fetch(`${url}?${queryParams}`, {
+    const routeResponse = await fetch(`${routeUrl}?${routeParams}`, {
         method: "GET",
     });
-    const data = await response.json();
-    return data;
+    const routeData = await routeResponse.json();
+    if (routeData.code == 4000) return null;
+
+    const routeSummary = routeData.data.routeSummary;
+
+    // get swap data
+    const swapUrl =
+        "https://aggregator-api.kyberswap.com/linea/api/v1/route/build";
+    const swapBody = {
+        routeSummary,
+        sender: account,
+        recipient: account,
+        slippageTolerance: 5000,
+    };
+    const swapResponse = await fetch(swapUrl, {
+        method: "POST",
+        body: JSON.stringify(swapBody),
+    });
+    const swapData = await swapResponse.json();
+
+    return swapData.data.data;
 };

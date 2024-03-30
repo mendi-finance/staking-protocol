@@ -22,12 +22,12 @@ contract ReserveManagerV2 is AccessControlUpgradeable {
     address public constant pair = 0xE5e19bBF39c76A8c980B48F2Ec89d0dE877bF567;
 
     /* OpenOcean */
-    address public constant OORouter =
-        0x6352a56caadC4F1E25CD6c75970Fa768A3304e64;
+    address public constant KyberRouter =
+        0x6131B5fae19EA4f9D964eAc0408E4408b66337b5;
 
     /* LGE */
     address public constant lpDepositor =
-        0x8f1b13497326857011B0b9A2b066054E1849F14D;
+        0xC321e5EBA8480ADcC122fA90CF63557c0D29Ce68;
 
     /* Distribution */
     address public constant rewardManager =
@@ -96,12 +96,12 @@ contract ReserveManagerV2 is AccessControlUpgradeable {
         uint256 amount,
         bytes memory swapQuoteDatum
     ) internal {
-        underlying.safeApprove(OORouter, amount);
+        underlying.safeApprove(KyberRouter, amount);
 
-        (bool success, bytes memory result) = OORouter.call{value: 0}(
+        (bool success, bytes memory result) = KyberRouter.call{value: 0}(
             swapQuoteDatum
         );
-        require(success, "ReserveManager: OO_API_SWAP_FAILED");
+        require(success, "ReserveManager: SWAP_FAILED");
     }
 
     function claimOLYNXInternal() internal {

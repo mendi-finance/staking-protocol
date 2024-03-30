@@ -1,8 +1,9 @@
 import { expect } from "chai";
 import { LPDepositorFixtureOutput, lpDepositorFixture } from "./_fixtures";
 import { ethers } from "ethers";
+import { time } from "@nomicfoundation/hardhat-network-helpers";
 
-describe.only("LPDepositor", () => {
+describe("LPDepositor", () => {
     let fixture: LPDepositorFixtureOutput;
 
     beforeEach(async () => {
@@ -81,6 +82,8 @@ describe.only("LPDepositor", () => {
             .connect(pairWhale)
             ._stakeLP(pair.address, ethers.constants.MaxUint256);
 
+        await time.increase(3600);
+
         await expect(
             lpDepositor
                 .connect(pairWhale)
@@ -94,6 +97,6 @@ describe.only("LPDepositor", () => {
         ).to.not.reverted;
 
         expect(await olynx.balanceOf(lpDepositor.address)).to.eq(0);
-        //expect(await olynx.balanceOf(owner.address)).to.gt(0);
+        expect(await olynx.balanceOf(owner.address)).to.gt(0);
     });
 });

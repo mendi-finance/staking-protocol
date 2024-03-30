@@ -34,7 +34,7 @@ const config: HardhatUserConfig = {
                 url: process.env[
                     `${process.env.FORKING_NETWORK?.toUpperCase()}_RPC_URL`
                 ]!,
-                blockNumber: 2978780,
+                blockNumber: 3267300,
             },
             autoImpersonate: true,
             gasPrice: 1000000000,
@@ -66,6 +66,9 @@ const config: HardhatUserConfig = {
         deployer: {
             default: 0,
         },
+    },
+    mocha: {
+        timeout: 100000,
     },
 };
 

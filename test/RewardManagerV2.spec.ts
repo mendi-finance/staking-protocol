@@ -42,6 +42,10 @@ describe("RewardManagerV2", () => {
                 .approve(rewardManager.address, ethers.constants.MaxUint256)
         ).not.to.reverted;
 
+        const before_uUSDCRewards = await usdc.balanceOf(uRewards);
+        const before_sLVCRewards = await olynx.balanceOf(sRewards);
+        const before_uLVCRewards = await olynx.balanceOf(uRewards);
+
         await expect(
             rewardManager
                 .connect(owner)
@@ -51,13 +55,13 @@ describe("RewardManagerV2", () => {
                 )
         ).not.to.reverted;
 
-        const sMendiRewards = await mendi.balanceOf(sRewards);
-        const uUSDCRewards = await usdc.balanceOf(uRewards);
-        const sLVCRewards = await olynx.balanceOf(sRewards);
-        const uLVCRewards = await olynx.balanceOf(uRewards);
-        expect(uUSDCRewards).to.eq(uUsdc);
-        expect(sLVCRewards).to.eq(sLVC);
-        expect(uLVCRewards).to.eq(uLVC);
+        const after_uUSDCRewards = await usdc.balanceOf(uRewards);
+        const after_sLVCRewards = await olynx.balanceOf(sRewards);
+        const after_uLVCRewards = await olynx.balanceOf(uRewards);
+
+        expect(after_uUSDCRewards.sub(before_uUSDCRewards)).to.eq(uUsdc);
+        expect(after_sLVCRewards.sub(before_sLVCRewards)).to.eq(sLVC);
+        expect(after_uLVCRewards.sub(before_uLVCRewards)).to.eq(uLVC);
 
         expect(await olynx.balanceOf(rewardManager.address)).to.equal(0);
         expect(await usdc.balanceOf(rewardManager.address)).to.equal(0);

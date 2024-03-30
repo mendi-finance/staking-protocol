@@ -17,7 +17,7 @@ contract LPDepositor is AccessControlUpgradeable {
 
     /* Tokens */
     address public constant mendi = 0x43E8809ea748EFf3204ee01F08872F063e44065f;
-    address public constant oLYNX = 0x1a51b19CE03dbE0Cb44C1528E34a7EDD7771E9Af;
+    address public constant oLYNX = 0x63349BA5E1F71252eCD56E8F950D1A518B400b60;
 
     /* Lynx */
     address public constant voter = 0x0B2c83B6e39E32f694a86633B4d1Fe69d13b63c5;
